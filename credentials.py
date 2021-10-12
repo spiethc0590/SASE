@@ -1,6 +1,4 @@
 #Mandatory
 MERAKI_API_KEY=''
-MERAKI_BASEURL=''
-WEBHOOK_SERVER_NAME = ""
-WEBHOOK_SERVER_URL = ""
-WEBHOOK_PASSWORD = ""
+MERAKI_BASEURL='https://api.meraki.com/api/v1'
+
