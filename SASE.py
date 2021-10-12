@@ -1,4 +1,5 @@
 # Libraries
+
 from pprint import pprint
 from flask import Flask, json, request, render_template
 import sys, os, getopt, json
@@ -10,6 +11,7 @@ import shutil
 import datetime
 import credentials
 import pdb
+import socket
 
 Meraki_BaseURL = credentials.MERAKI_BASEURL
 Meraki_Headers = {
@@ -73,7 +75,7 @@ def getclientsecurityevents(network_id, client_id):
     networkdown = True
     while networkdown == True:
         try:
-            response = requests.request('GET', Meraki_BaseURL + "/networks/"+ network_id + "/appliance/clients/"+ client_id +"/security/events", headers=Meraki_Headers, data = {})
+            response = requests.request('GET', Meraki_BaseURL + "/networks/"+ network_id + "/appliance/clients/"+ client_id +"/security/events?timespan=120", headers=Meraki_Headers, data = {})
             networkdown = False
             return response.json()
         except:
@@ -176,7 +178,6 @@ def get_webhook_json():
     webhook_data_json = request.json 
     #pprint(webhook_data_json, indent=1)
     webhook_data = json.dumps(webhook_data_json)
-    # WebEx Teams can only handle so much text so limit to 1000 chars
     webhook_data = webhook_data[:1000] + '...'
 
     # Gather Alert Data
@@ -198,11 +199,10 @@ def get_webhook_json():
 
         # Find client for malware alert
         #WEBHOOK ALERT TO NOTIFY CLIENT DOWNLOADED MALWARE
-        print("Webhook Received Begining Isolation")
         group_policy = verify_isolation_policy(network_id= network_id)  
-        if alert_type == "Power supply went down": #!!!!!!!!!test solution to be changd to "Malware Downloaded!!!!!!!!"
+        if alert_type == "Malware download detected": #!!!!!!!!!test solution to be changd to "Malware Downloaded!!!!!!!!"
             print('webhook recieved isolation has started')
-            Net_Clients = get_clients(serial = "Q3FA-RY3M-KUVT") #!!!!!!serial to equal serial_id!!!!!!!!!!!
+            Net_Clients = get_clients(serial = serial_id) #!!!!!!serial to equal serial_id!!!!!!!!!!!
             client_list = []
             
             #for loop
@@ -212,6 +212,7 @@ def get_webhook_json():
             security_alerts = []
             for id in client_list:
                 security_alerts.append(getclientsecurityevents(network_id= network_id, client_id = id))
+            print("security alerts gathered")
             #pprint(security_alerts)    
             malware_clients =[]
             for alert in security_alerts:
@@ -227,6 +228,7 @@ def get_webhook_json():
 
                         except:
                             pass
+            print("malware clients gathered")
             client_list = []            
             for client in Net_Clients:
                 if client["mac"] in malware_clients:
