@@ -1,3 +1,25 @@
+"""Set the Environment Information Needed to Access Your Lab!
+The provided sample code in this repository will reference this file to get the
+information needed to connect to your lab backend.  You provide this info here
+once and the scripts in this repository will access it as needed by the lab.
+Copyright (c) 2018 Cisco and/or its affiliates.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 # Libraries
 
 from pprint import pprint
@@ -170,8 +192,7 @@ webhook_data = []
 # Webhook Receiver Code - Accepts JSON POST from Meraki and
 @app.route("/", methods=["POST"])
 def get_webhook_json():
-    #global webhook_data
-    #global seen_alerts
+    
     start_time = time.time()
 
     # Webhook Receiver
@@ -192,20 +213,19 @@ def get_webhook_json():
     timestamp = webhook_data_json['occurredAt']
     
     
-    #Avoid duplicate Alert IDs
-    if 1 == 1:
-    #if alert_id not in seen_alerts:
-        #seen_alerts.append(alert_id)
+    
+    if len(credentials.MERAKI_API_KEY) == 0: #verifies that an API key is entered
+        print("please enter a Meraki API Key")
+    else:
 
-        # Find client for malware alert
         #WEBHOOK ALERT TO NOTIFY CLIENT DOWNLOADED MALWARE
         group_policy = verify_isolation_policy(network_id= network_id)  
-        if alert_type == "Malware download detected": #!!!!!!!!!test solution to be changd to "Malware Downloaded!!!!!!!!"
+        if alert_type == "Malware download detected": 
             print('webhook recieved isolation has started')
-            Net_Clients = get_clients(serial = serial_id) #!!!!!!serial to equal serial_id!!!!!!!!!!!
+            Net_Clients = get_clients(serial = serial_id) 
             client_list = []
             
-            #for loop
+            #for loop looping through the clients on the network
             for client in Net_Clients: 
                 client_list.append(client["id"]) 
             #pprint(client_list)
@@ -223,7 +243,7 @@ def get_webhook_json():
                         try:
                             if x == 'errors':
                                 pass
-                            elif x['blocked'] == False: #!!!!!!!!!downloaded to replace blocked!!!!!!!!!!
+                            elif x['blocked'] == False: 
                                 malware_clients.append(x["clientMac"])
 
                         except:
